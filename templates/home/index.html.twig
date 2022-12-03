@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    {% if openSantas|length > 0 %}
+        <ul>
+        {% for santa in openSantas %}
+            <li>{{ santa.year }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucun Random Santa n'est ouvert pour le moment cliquez <a href="{{ path('app_santa_create') }}">ici</a> pour un créé un</p>
+    {% endif %}
+{% endblock %}

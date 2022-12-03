@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+###> doctrine/doctrine-bundle ###
+  mariadb:
+    build: docker/mariadb
+    restart: "no"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
