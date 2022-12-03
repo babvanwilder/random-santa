@@ -5,8 +5,8 @@
 {% block body %}
     {% include 'santa/form.html.twig' with {
         'form': form,
-        'title': 'Ajouter un Random Santa',
-        'submitLabel': 'Ajouter',
-        'pathCancel': path('app_santa')
+        'title': 'Modifier ' ~ oldName,
+        'submitLabel': 'Modifier',
+        'pathCancel': path('app_santa_view', {'id': form.vars.value.id})
     } %}
 {% endblock %}

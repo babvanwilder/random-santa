@@ -3,10 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\SantaRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SantaRepository::class)]
 class Santa
@@ -17,12 +16,17 @@ class Santa
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom ne doit pas être vide")]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotBlank(message: "La date de début ne doit pas être vide")]
+    #[Assert\LessThan(propertyPath: "dateClose", message: "La date de début doit être supérieur à la date de fin")]
     private ?\DateTimeInterface $dateStart = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotBlank(message: "La date de fin ne doit pas être vide")]
+    #[Assert\GreaterThan(propertyPath: "dateStart", message: "La date de fin doit être supérieur à la date de début")]
     private ?\DateTimeInterface $dateClose = null;
 
     #[ORM\ManyToOne]
@@ -52,7 +56,7 @@ class Santa
         return $this;
     }
 
-    public function getDateStart(): ?\DateTimeInterface
+    public function getDateStart(): \DateTimeInterface
     {
         return $this->dateStart;
     }
@@ -64,7 +68,7 @@ class Santa
         return $this;
     }
 
-    public function getDateClose(): ?\DateTimeInterface
+    public function getDateClose(): \DateTimeInterface
     {
         return $this->dateClose;
     }
