@@ -4,7 +4,7 @@ namespace App\Manager;
 
 use App\Entity\Santa;
 use App\Repository\SantaRepository;
-use DateTime;
+use DateTimeImmutable;
 use Symfony\Component\Security\Core\Security;
 
 class SantaManager
@@ -14,39 +14,42 @@ class SantaManager
         private readonly Security $security
     ) {}
 
-    public function create(string $name, int $years): Santa
+    public function create(string $name, DateTimeImmutable $dateStart, DateTimeImmutable $dateClose): Santa
     {
         $santa = (new Santa())
             ->setName($name)
-            ->setYear($years)
-            ->setClose(false)
-            ->setOwner($this->security->getUser());
+            ->setDateStart($dateStart)
+            ->setDateClose($dateClose)
+            ->setOwner($this->security->getUser())
+        ;
 
         $this->santaRepository->save($santa, true);
 
         return $santa;
     }
 
-    public function close(Santa $santa): void
+    public function archive(Santa $santa): void
     {
-        $santa->setClose(true)
-            ->setDateClose(new DateTime())
-            ->setCloser($this->security->getUser());
+        $santa
+            ->setDateArchived(new DateTimeImmutable())
+            ->setArchiver($this->security->getUser())
+        ;
 
         $this->santaRepository->save($santa, true);
     }
 
-    public function getAllOpen(): array
+    public function getOpen(): array
     {
         return $this->santaRepository->findBy([
             'close' => false
         ]);
     }
 
-    public function getAllClosed(): array
+    public function getClosed(string $interval): array
     {
         return $this->santaRepository->findBy([
             'close' => true
+
         ]);
     }
 }

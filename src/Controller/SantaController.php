@@ -11,10 +11,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/santa', name: 'app_santa')]
 class SantaController extends AbstractController
 {
-    #[Route('/santa', name: 'app_santa_create', methods: ['GET', 'POST'])]
-    public function index(Request $request, SantaManager $santaManager): Response
+    #[Route('', name: '', methods: ['GET'])]
+    public function index(SantaManager $santaManager): Response
+    {
+        return $this->render("santa/index.html.twig", [
+            'openSantas' => [],
+            'closeSantas' => $this->isGranted('ROLE_ADMIN') ? [] : []
+        ]);
+    }
+
+    #[Route('/create', name: '_create', methods: ['GET', 'POST'])]
+    public function create(Request $request, SantaManager $santaManager): Response
     {
         $santa = new Santa();
         $santa
@@ -29,8 +39,10 @@ class SantaController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->renderForm('santa/index.html.twig', [
+        return $this->renderForm('santa/create.html.twig', [
             'form' => $form,
         ]);
     }
+
+
 }
