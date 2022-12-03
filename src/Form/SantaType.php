@@ -14,7 +14,8 @@ class SantaType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('year')
+            ->add('dateStart')
+            ->add('dateClose')
             ->add('submit', SubmitType::class)
         ;
     }

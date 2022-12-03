@@ -1,0 +1,18 @@
+<section class="w3-padding-16">
+    <div class="w3-card-4">
+        <div class="w3-container w3-theme-dark">
+            <h2>{{ title }} <span class="w3-badge w3-theme">{{ santas|length }}</span></h2>
+        </div>
+        <div class="w3-container w3-padding-16">
+            {% if santas|length > 0 %}
+                <ul class="w3-ul">
+                    {% for santa in santas %}
+                        <li><a href="{{ path('app_santa_view', {'id': santa.id}) }}">{{ santa.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                Aucun Random Santa n'est {{ noneMessage }}
+            {% endif %}
+        </div>
+    </div>
+</section>

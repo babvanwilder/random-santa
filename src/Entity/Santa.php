@@ -3,10 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\SantaRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SantaRepository::class)]
 class Santa
@@ -16,55 +15,60 @@ class Santa
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $year = null;
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom ne doit pas être vide")]
+    private ?string $name = null;
 
-    #[ORM\Column]
-    private ?bool $close = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotBlank(message: "La date de début ne doit pas être vide")]
+    #[Assert\LessThan(propertyPath: "dateClose", message: "La date de début doit être supérieur à la date de fin")]
+    private ?\DateTimeInterface $dateStart = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Assert\NotBlank(message: "La date de fin ne doit pas être vide")]
+    #[Assert\GreaterThan(propertyPath: "dateStart", message: "La date de fin doit être supérieur à la date de début")]
     private ?\DateTimeInterface $dateClose = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
-    #[ORM\ManyToOne]
-    private ?User $closer = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateArchived = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\ManyToOne]
+    private ?User $archiver = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getYear(): ?int
+    public function getName(): ?string
     {
-        return $this->year;
+        return $this->name;
     }
 
-    public function setYear(int $year): self
+    public function setName(string $name): self
     {
-        $this->year = $year;
+        $this->name = $name;
 
         return $this;
     }
 
-    public function isClose(): ?bool
+    public function getDateStart(): \DateTimeInterface
     {
-        return $this->close;
+        return $this->dateStart;
     }
 
-    public function setClose(bool $close): self
+    public function setDateStart(\DateTimeInterface $dateStart): self
     {
-        $this->close = $close;
+        $this->dateStart = $dateStart;
 
         return $this;
     }
 
-    public function getDateClose(): ?\DateTimeInterface
+    public function getDateClose(): \DateTimeInterface
     {
         return $this->dateClose;
     }
@@ -88,26 +92,26 @@ class Santa
         return $this;
     }
 
-    public function getCloser(): ?User
+    public function getDateArchived(): ?\DateTimeInterface
     {
-        return $this->closer;
+        return $this->dateArchived;
     }
 
-    public function setCloser(?User $closer): self
+    public function setDateArchived(\DateTimeInterface $dateArchived): self
     {
-        $this->closer = $closer;
+        $this->dateArchived = $dateArchived;
 
         return $this;
     }
 
-    public function getName(): ?string
+    public function getArchiver(): ?User
     {
-        return $this->name;
+        return $this->archiver;
     }
 
-    public function setName(string $name): self
+    public function setArchiver(?User $archiver): self
     {
-        $this->name = $name;
+        $this->archiver = $archiver;
 
         return $this;
     }
