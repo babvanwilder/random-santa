@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Random Santa - {{ santa.name }}{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {% if is_granted('ROLE_ROOT') or santa.owner.id == app.user.id %}
+        <script src=""></script>
+    {% endif %}
+    <script src="{{ asset('scripts/santa.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="w3-card-4">
+        <div class="w3-container w3-theme-dark">
+            <h2>{% if is_granted('ROLE_ADMIN') %}({{ santa.id }}) - {% endif %}{{ santa.name }}</h2>
+        </div>
+        <div class="w3-container">
+            <p>Date de début : {{ santa.dateStart|date('d/m/Y H:i:s') }}</p>
+            <p>Date de fin : {{ santa.dateClose|date('d/m/Y H:i:s') }}</p>
+            {% if is_granted('ROLE_ADMIN') %}
+                <p>Créateur : {{ app.user.firstname }} {{ app.user.lastname }}</p>
+            {% endif %}
+            {% if is_granted('ROLE_ROOT') or santa.owner.id == app.user.id %}
+                <p>
+                    <a href="{{ path('app_santa_edit', {'id': santa.id}) }}" class="w3-btn w3-theme-dark btn-edit">Modifier</a>
+                    <button class="w3-btn w3-theme-dark btn-archive" data-path="{{ path('app_santa_archive', {'id': santa.id}) }}">Archiver</button>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

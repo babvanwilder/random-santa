@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Santa;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -37,6 +38,66 @@ class SantaRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findOpen(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('santa');
+        $expr = $queryBuilder->expr();
+
+        return $queryBuilder
+            ->andWhere($expr->between(':now', 'santa.dateStart', 'santa.dateClose'))
+            ->andWhere($expr->isNull('santa.dateArchived'))
+            ->setParameters([
+                'now' => new DateTimeImmutable()
+            ])
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findFuture(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('santa');
+        $expr = $queryBuilder->expr();
+
+        return $queryBuilder
+            ->andWhere($expr->gte('santa.dateStart', ':now'))
+            ->andWhere($expr->isNull('santa.dateArchived'))
+            ->setParameters([
+                'now' => new DateTimeImmutable()
+            ])
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findClose(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('santa');
+        $expr = $queryBuilder->expr();
+
+        return $queryBuilder
+            ->andWhere($expr->lt('santa.dateClose', ':now'))
+            ->andWhere($expr->isNull('santa.dateArchived'))
+            ->setParameters([
+                'now' => new DateTimeImmutable()
+            ])
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findArchived(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('santa');
+        $expr = $queryBuilder->expr();
+
+        return $queryBuilder
+            ->andWhere($expr->isNotNull('santa.dateArchived'))
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
 //    /**

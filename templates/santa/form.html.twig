@@ -1,0 +1,39 @@
+<div class="w3-card-4">
+    <div class="w3-container w3-theme-dark">
+        <h2>{{ title }}</h2>
+    </div>
+    {{ form_start(form, {'attr': {'class': 'w3-container'}}) }}
+    {% if form.vars.errors|length > 0 or form.name.vars.errors|length > 0 or form.dateClose.vars.errors|length > 0 or form.dateStart.vars.errors|length > 0 %}
+        <div class="w3-panel w3-red">
+            {% for error in form.vars.errors %}
+                <p>{{ error.message }}</p>
+            {% endfor %}
+            {% for error in form.name.vars.errors %}
+                <p>{{ error.message }}</p>
+            {% endfor %}
+            {% for error in form.dateStart.vars.errors %}
+                <p>{{ error.message }}</p>
+            {% endfor %}
+            {% for error in form.dateClose.vars.errors %}
+                <p>{{ error.message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <p>
+        <label for="name">Nom</label>
+        {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+    </p>
+    <p>
+        <label for="dateStart">Date de début</label>
+        {{ form_widget(form.dateStart, {'attr': {'class': 'w3-input w3-border'}}) }}
+    </p>
+    <p>
+        <label for="dateClose">Date de fin</label>
+        {{ form_widget(form.dateClose, {'attr': {'class': 'w3-input w3-border'}}) }}
+    </p>
+    <p>
+        {{ form_widget(form.submit, {'attr': {'class': 'w3-btn w3-theme-dark'}, 'label': submitLabel}) }}
+        <a class="w3-btn w3-theme-dark" href="{{ pathCancel }}">Annuler</a>
+    </p>
+    {{ form_end(form) }}
+</div>

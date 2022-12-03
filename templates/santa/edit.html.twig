@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Random Santa - Create{% endblock %}
+
+{% block body %}
+    {% include 'santa/form.html.twig' with {
+        'form': form,
+        'title': 'Modifier ' ~ oldName,
+        'submitLabel': 'Modifier',
+        'pathCancel': path('app_santa_view', {'id': form.vars.value.id})
+    } %}
+{% endblock %}

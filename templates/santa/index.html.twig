@@ -1,25 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello RamdomSantaController!{% endblock %}
+{% block title %}Random Santa - list{% endblock %}
 
 {% block body %}
-    <div class="w3-card-4 ">
-        <div class="w3-container w3-theme-dark">
-            <h2>Ajouter un Random Santa</h2>
-        </div>
-        {{ form_start(form, {'attr': {'class': 'w3-container'}}) }}
-        <p>
-            <label for="name">Nom</label>
-            {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
-        </p>
-        <p>
-            <label for="year">Last Name</label>
-            {{ form_widget(form.year, {'attr': {'class': 'w3-input w3-border'}}) }}
-        </p>
-        <p>
-            {{ form_row(form.submit, {'attr': {'class': 'w3-btn w3-theme-dark'}, 'label': 'Ajouter'}) }}
-        </p>
-
-        {{ form_end(form) }}
-    </div>
+    {% if is_granted('ROLE_ADMIN') %}
+        <section class="w3-padding-16 w3-container">
+            <a class="w3-btn w3-right w3-theme-dark" href="{{ path('app_santa_create') }}">Ajouter un Random Santa</a>
+        </section>
+    {% endif %}
+    {% include 'santa/list.html.twig' with {
+        'title': 'En cours',
+        'noneMessage': 'en cours',
+        'santas': openSantas
+    } %}
+    {% include 'santa/list.html.twig' with {
+        'title': 'Bientôt',
+        'noneMessage': 'prévu',
+        'santas': futurSantas
+    } %}
+    {% include 'santa/list.html.twig' with {
+        'title': 'Fini',
+        'noneMessage': 'passé',
+        'santas': closeSantas
+    } %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% include 'santa/list.html.twig' with {
+            'title': 'Archivé',
+            'noneMessage': 'archivé',
+            'santas': archivedSantas
+        } %}
+    {% endif %}
 {% endblock %}
