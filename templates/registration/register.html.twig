@@ -3,19 +3,53 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-
-    <h1>Register</h1>
-
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
-
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+    <div class="w3-card-4">
+        <div class="w3-container w3-theme-dark">
+            <h2>Création de compte</h2>
+        </div>
+        {{ form_start(form, {'attr': {'class': 'w3-container'}}) }}
+        {% if app.flashes('verify_email_error')|length > 0 or form.vars.errors|length > 0 or form.email.vars.errors|length > 0 or form.plainPassword.vars.errors|length > 0 or form.agreeTerms.vars.errors|length > 0 %}
+            <div class="w3-panel w3-red">
+                {% for flash_error in app.flashes('verify_email_error') %}
+                    <p>{{ flash_error }}</p>
+                {% endfor %}
+                {% for error in form.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+                {% for error in form.email.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+                {% for error in form.plainPassword.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+                {% for error in form.agreeTerms.vars.errors %}
+                    <p>{{ error.message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <p>
+            <label for="email">Email</label>
+            {{ form_widget(form.email, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+            <label for="plainPassword">Mot de passe</label>
+            {{ form_widget(form.plainPassword, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+            <label for="firstname">Prénom</label>
+            {{ form_widget(form.firstname, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+            <label for="lastname">Nom</label>
+            {{ form_widget(form.lastname, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+            <label for="registration_form_agreeTerms" class="required">Agree terms</label>
+            {{ form_widget(form.agreeTerms, {'attr': {'class': 'w3-check'}}) }}
+        </p>
+        <p>
+            <button type="submit" class="w3-btn w3-theme-dark">Créer mon compte</button>
+        </p>
+        {{ form_end(form) }}
+    </div>
 {% endblock %}
