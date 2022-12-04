@@ -4,16 +4,21 @@ namespace App\Controller;
 
 use App\Entity\Santa;
 use App\Form\SantaType;
+use App\Manager\ParticipateManager;
 use App\Manager\SantaManager;
 use DateInterval;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
 
 #[Route('/santa', name: 'app_santa')]
+#[IsGranted('ROLE_USER')]
 class SantaController extends AbstractController
 {
     #[Route('', name: '', methods: ['GET'])]
@@ -54,7 +59,14 @@ class SantaController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: '_view', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route(
+        '/{santa}',
+        name: '_view',
+        requirements: [
+            'santa' => '\d+'
+        ],
+        methods: ['GET']
+    )]
     public function view(Santa $santa): Response
     {
         if (null !== $santa->getDateArchived() && !$this->isGranted('ROLE_ADMIN')) {
@@ -66,7 +78,12 @@ class SantaController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: '_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route(
+        '/{santa}/edit',
+        name: '_edit',
+        requirements: ['santa' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
     #[IsGranted('ROLE_ADMIN')]
     public function edit(Santa $santa, Request $request, SantaManager $santaManager): Response
     {
@@ -81,7 +98,7 @@ class SantaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $santaManager->update($santa);
+            $santaManager->save($santa);
 
             return $this->redirectToRoute('app_santa_view', [
                 'id' => $santa->getId()
@@ -94,7 +111,14 @@ class SantaController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: '_archive', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[Route(
+        '/{santa}',
+        name: '_archive',
+        requirements: [
+            'santa' => '\d+'
+        ],
+        methods: ['DELETE']
+    )]
     #[IsGranted('ROLE_ADMIN')]
     public function archive(Santa $santa, SantaManager $santaManager): Response
     {
@@ -105,5 +129,77 @@ class SantaController extends AbstractController
         $santaManager->archive($santa);
 
         return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
+        '/{santa}/participate',
+        name: '_add_me',
+        requirements: [
+            'santa' => '\d+'
+        ],
+        methods: ['POST']
+    )]
+    public function addMe(
+        Santa $santa,
+        ParticipateManager $participateManager
+    ): Response
+    {
+        if (null !== $participateManager->getBySantaAndGiver($santa, $this->getUser())) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
+
+        $participate = $participateManager->create($santa);
+
+        return new Response($participate->getId(), Response::HTTP_CREATED);
+    }
+
+    #[Route(
+        '/{santa}/participate/{participate}',
+        name: '_remove_me',
+        requirements: [
+            'santa' => '\d+',
+            'participate' => '\d+'
+        ],
+        methods: ['DELETE']
+    )]
+    public function removeMe(
+        Santa $santa,
+        SantaManager $santaManager,
+        ParticipateManager $participateManager,
+        LoggerInterface $logger
+    ): Response
+    {
+        $participate = $participateManager->getBySantaAndGiver($santa, $this->getUser());
+
+        if (null === $participate) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
+
+        $santa->removeParticipate($participate);
+        $logger->info($santa->getParticipates()->count());
+        $santaManager->save($santa);
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
+        '{santa}/calculate',
+        name: '_calculate',
+        requirements: [
+            'santa' => '\d+',
+            'participate' => '\d+'
+        ],
+        methods: ['POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function calculate(Santa $santa, SantaManager $santaManager): Response
+    {
+        if (!$this->isGranted('ROLE_ROOT') || $santa->getOwner() !== $this->getUser()) {
+            throw new AccessDeniedHttpException("not idt");
+        }
+
+        $santaManager->calculate($santa);
+
+        return new Response('', Response::HTTP_CREATED);
     }
 }

@@ -17,4 +17,9 @@ class UserManager
         $user->setRoles($user->getRoles());
         $this->userRepository->save($user, true);
     }
+
+    public function getAll(): array
+    {
+        return $this->userRepository->findAll();
+    }
 }
