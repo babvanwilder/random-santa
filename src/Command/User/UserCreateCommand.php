@@ -12,9 +12,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:user:create',
-    description: 'Add a short description for your command',
+    description: 'Create a user with ROLE_USER',
 )]
-class CreateCommand extends AppCommand
+class UserCreateCommand extends AppCommand
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $userPasswordHasher,
@@ -54,7 +54,6 @@ class CreateCommand extends AppCommand
     {
         $user = (new User())
             ->setEmail($this->input->getArgument('email'))
-            ->setFirstname($this->input->getOption('firstName'))
             ->setFirstname($this->input->getOption('firstName'))
             ->setLastname($this->input->getOption('lastName'))
             ->setIsVerified(true)
