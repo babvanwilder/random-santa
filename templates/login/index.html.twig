@@ -1,33 +1,43 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello LoginController!{% endblock %}
+{% block title %}Identification{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    {% for flashMessage in app.session.flashbag.get('error') %}
-        <div>{{ flashMessage }}</div>
-    {% endfor %}
-    {% if error %}
-        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
-
-    <form action="{{ path('app_login') }}" method="post">
-        <label for="username">Email:</label>
-        <input type="text" id="username" name="_username" value="{{ last_username }}"/>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="_password"/>
-
-        {# If you want to control the URL the user is redirected to on success
-        <input type="hidden" name="_target_path" value="/account"/> #}
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-        <button type="submit">login</button>
-    </form>
-</div>
+    <div class="w3-card-4">
+        <div class="w3-container w3-theme-dark">
+            <h2>Identification</h2>
+        </div>
+        <form class="w3-container" action="{{ path('app_login') }}" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            {% if app.flashes('success')|length > 0 %}
+                <div class="w3-panel w3-theme-default">
+                    {% for flash_success in app.flashes('success') %}
+                        <p>{{ flash_success }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if app.session.flashBag.get('error')|length > 0  or error %}
+                <div class="w3-panel w3-red">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <p>{{ flashMessage }}</p>
+                    {% endfor %}
+                    {% if error %}
+                        <p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <p>
+                <label for="username">Email:</label>
+                <input class="w3-input w3-border" type="text" id="username" name="_username" value="{{ last_username }}"/>
+            </p>
+            <p>
+                <label for="password">Password:</label>
+                <input class="w3-input w3-border" type="password" id="password" name="_password"/>
+            </p>
+            <p>
+                <button class="w3-btn w3-theme-dark" type="submit">S'identifier</button>
+                <a class="w3-btn w3-theme-dark" href="{{ path('app_register') }}">Créer un compte</a>
+            </p>
+        </form>
+    </div>
 {% endblock %}

@@ -18,6 +18,13 @@ class UserManager
         $this->userRepository->save($user, true);
     }
 
+    public function getOne(int $id): ?User
+    {
+        return $this->userRepository->findOneBy([
+            'id' => $id
+        ]);
+    }
+
     public function getAll(): array
     {
         return $this->userRepository->findAll();
