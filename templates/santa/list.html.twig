@@ -7,7 +7,7 @@
             {% if santas|length > 0 %}
                 <ul class="w3-ul">
                     {% for santa in santas %}
-                        <li><a href="{{ path('app_santa_view', {'id': santa.id}) }}">{{ santa.name }}</a></li>
+                        <li><a href="{{ path('app_santa_view', {'santa': santa.id}) }}">{{ santa.name }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}

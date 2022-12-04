@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SantaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,6 +40,14 @@ class Santa
 
     #[ORM\ManyToOne]
     private ?User $archiver = null;
+
+    #[ORM\OneToMany(mappedBy: 'santa', targetEntity: Participate::class, orphanRemoval: true)]
+    private Collection $participates;
+
+    public function __construct()
+    {
+        $this->participates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -112,6 +122,36 @@ class Santa
     public function setArchiver(?User $archiver): self
     {
         $this->archiver = $archiver;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Participate>
+     */
+    public function getParticipates(): Collection
+    {
+        return $this->participates;
+    }
+
+    public function addParticipate(Participate $participate): self
+    {
+        if (!$this->participates->contains($participate)) {
+            $this->participates->add($participate);
+            $participate->setSanta($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipate(Participate $participate): self
+    {
+        if ($this->participates->removeElement($participate)) {
+            // set the owning side to null (unless already changed)
+            if ($participate->getSanta() === $this) {
+                $participate->setSanta(null);
+            }
+        }
 
         return $this;
     }

@@ -18,13 +18,38 @@
         <div class="w3-container">
             <p>Date de début : {{ santa.dateStart|date('d/m/Y H:i:s') }}</p>
             <p>Date de fin : {{ santa.dateClose|date('d/m/Y H:i:s') }}</p>
+            {% set giver = 0 %}
+            {% if santa.participates|length > 0 %}
+                <p>Participants :
+                    <ul class="w3-ul">
+                        {% for participate in santa.participates %}
+                            {% if participate.giver is same as app.user %}
+                                {% set giver = participate.id %}
+                            {% endif %}
+                            <li>{{ participate.giver.firstName }} {{ participate.giver.lastName }}{% if participate.receiver %} -> {{ participate.receiver.firstName }} {{ participate.receiver.lastName }}{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+            {% endif %}
             {% if is_granted('ROLE_ADMIN') %}
                 <p>Créateur : {{ app.user.firstname }} {{ app.user.lastname }}</p>
             {% endif %}
-            {% if is_granted('ROLE_ROOT') or santa.owner.id == app.user.id %}
+            {% if is_granted('ROLE_ROOT') or santa.owner.id == app.user.id or santa.dateClose > date() %}
                 <p>
-                    <a href="{{ path('app_santa_edit', {'id': santa.id}) }}" class="w3-btn w3-theme-dark btn-edit">Modifier</a>
-                    <button class="w3-btn w3-theme-dark btn-archive" data-path="{{ path('app_santa_archive', {'id': santa.id}) }}">Archiver</button>
+                    {% if santa.dateClose > date() %}
+                        {% if giver != 0 %}
+                            <button class="w3-btn w3-theme-dark btn-remove-to-santa" data-path="{{ path('app_santa_remove_me', {'santa': santa.id, 'participate': giver}) }}">S'enlever</button>
+                        {% else %}
+                            <button class="w3-btn w3-theme-dark btn-add-to-santa" data-path="{{ path('app_santa_add_me', {'santa': santa.id}) }}">S'ajouter</button>
+                        {% endif %}
+                    {% endif %}
+                    {% if is_granted('ROLE_ROOT') or santa.owner.id == app.user.id %}
+                        <a href="{{ path('app_santa_edit', {'santa': santa.id}) }}" class="w3-btn w3-theme-dark btn-edit">Modifier</a>
+                        <button class="w3-btn w3-theme-dark btn-archive" data-path="{{ path('app_santa_archive', {'santa': santa.id}) }}">Archiver</button>
+                        {% if santa.dateClose < date() and santa.participates|length > 2 and santa.participates[0].receiver is null %}
+                            <button class="w3-btn w3-theme-dark btn-calculate-santa" data-path="{{ path('app_santa_calculate', {'santa': santa.id}) }}">Calculer</button>
+                        {% endif %}
+                    {% endif %}
                 </p>
             {% endif %}
         </div>
